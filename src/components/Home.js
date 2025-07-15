@@ -1,14 +1,20 @@
-import { Component } from 'react';
 import '../App.css';
+import Prop from './Prop.js';
+import { useState } from 'react';
 
-class Home extends Component {
-  render() {
-    return (
-      <div>
-        <h4>This is Home page</h4>
-      </div>
-    )
-  }
+function Home() {
+  const [color, setColor] = useState("red");
+
+  return (
+    <>
+      <Prop />
+      <h1>My favorite color is {color}!</h1>
+      <button
+        type="button"
+        onClick={() => setColor("blue")}
+      >Blue</button>
+    </>
+  )
 }
 
 export default Home;
