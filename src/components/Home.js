@@ -4,14 +4,14 @@ import { useState } from 'react';
 import Condition from './Condition';
 
 function Home() {
-  const [color, setColor] = useState("Red");
-  const changecolor = color ? "Blue" : "Red";
+  const [color, setColor] = useState(true); // Using a boolean is simpler for toggling
+  const favColor = color ? "Blue" : "Red";
   return (
     <>
-      <Prop />
-      <h1>My favorite color is {changecolor}!</h1>
+      <Prop favColor={favColor.toLowerCase()} />
+      <h1>My favorite color is {favColor}!</h1>
       <button onClick={() => setColor(!color)}>
-        {changecolor}
+        {favColor}
       </button>
       <Condition />
     </>

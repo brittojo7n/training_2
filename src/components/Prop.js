@@ -1,15 +1,15 @@
 import './Prop.css';
 import '../App.css';
 
-function Prop() {
+function Prop({ favColor }) {
   return (
-    <Garage brand="Ford"></Garage>
+    <Garage brand="Ford" favColor={favColor} />
   )
 }
 
 function Garage(props){
   return (
-    <h3>Car is {props.brand}</h3>
+    <h3 style={{ color: props.favColor }}>Car is {props.brand}</h3>
   )
 }
 

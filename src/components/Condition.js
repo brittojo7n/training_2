@@ -28,6 +28,7 @@ function Condition() {
       <hr />
       {greeting}
       {isLoggedIn && <p>Logged in as User001!</p>}
+
     </div>
   );
 }
