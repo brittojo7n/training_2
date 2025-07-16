@@ -25,23 +25,9 @@ function Condition() {
       <button onClick={() => setIsLoggedIn(!isLoggedIn)}>
         {isLoggedIn ? 'Log Out' : 'Log In'}
       </button>
-
       <hr />
-
-      <h3>1. `if-else` Statement:</h3>
       {greeting}
-
-      <hr />
-
-      <h3>2. Ternary Operator (`? :`):</h3>
-      {isLoggedIn ? <p>Logout</p> : <p>Login</p>}
-
-      <hr/>
-
-      <h3>3. Logical `&&` Operator:</h3>
       {isLoggedIn && <p>Logged in as User001!</p>}
-
-      <hr />
     </div>
   );
 }
