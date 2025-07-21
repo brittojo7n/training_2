@@ -10,6 +10,7 @@ import { UseContextDemo } from './components/UseContextDemo';
 import { UseRefDemo } from './components/UseRefDemo';
 import { UseMemoDemo } from './components/UseMemoDemo';
 import { UseCallbackDemo } from './components/UseCallbackDemo';
+import SampleAntD from './components/SampleAntD';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
 function App() {
@@ -39,6 +40,8 @@ function App() {
           <Link to="/use-memo">useMemo</Link>
           &nbsp; &nbsp;
           <Link to="/use-callback">useCallback</Link>
+          &nbsp; &nbsp;
+          <Link to="/antd">Ant Design</Link>
         </nav>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -51,6 +54,7 @@ function App() {
           <Route path="/use-ref" element={<UseRefDemo />} />
           <Route path="/use-memo" element={<UseMemoDemo />} />
           <Route path="/use-callback" element={<UseCallbackDemo />} />
+          <Route path="/antd" element={<SampleAntD />} />
         </Routes>
       </BrowserRouter>
     </div>
