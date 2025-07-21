@@ -1,5 +1,10 @@
+body {
+  background-color: #e0e0e0;
+}
+
 .App {
   display: flex;
+  margin-top: 25px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -8,7 +13,7 @@
 }
 
 .App-logo {
-  height: 70px;
+  height: 120px;
   width: auto;
   pointer-events: none;
 }
@@ -39,6 +44,15 @@
     transform: rotate(0deg);
   }
   to {
-    transform: rotate(360deg);
+    transform: rotate(3600deg);
   }
+}
+
+nav{
+  margin-top: 25px;
+  margin-bottom: 50px;
+}
+
+button:hover{
+  box-shadow: 0px 0px 12px 6px #5ebde2;
 }
