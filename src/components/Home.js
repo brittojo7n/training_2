@@ -10,9 +10,10 @@ function Home() {
   };
 
   return (
-    <div style={{
+    <div className='card1' style={{
       maxWidth: '350px',
       margin: '40px auto',
+      borderRadius: '10px',
       padding: '24px',
     }}>
       <h1 style={{ textAlign: 'center', fontSize: '1.5rem', marginBottom: '16px' }}>Home Page</h1>

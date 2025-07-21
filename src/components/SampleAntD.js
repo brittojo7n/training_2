@@ -43,7 +43,7 @@ const SampleAntD = () => {
                         md={8}
                         lg={6}
                     >
-                        <Card style={{width: '200px'}}>
+                        <Card>
                             <Meta title={card.title} />
                         </Card>
                     </Col>

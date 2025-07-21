@@ -56,3 +56,12 @@ nav{
 button:hover{
   box-shadow: 0px 0px 12px 6px #5ebde2;
 }
+
+@media (max-width: 500px) {
+  h1 {
+    color: blue;
+  }
+  .card1{
+    background-color: rgba(255, 166, 118, 0.651);
+  }
+}
