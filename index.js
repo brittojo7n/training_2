@@ -18,10 +18,30 @@ const server = http.createServer((req, res) => {
             timestamp: new Date()
         }));
     } 
+    
+    // handle POST request to /data
+    else if (req.url === '/data' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                console.log('Received data:', data);
+                res.writeHead(201, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Data received successfully', yourData: data }));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Bad Request: Invalid JSON' }));
+            }
+        });
+    }
 
     // Page Not Found
     else {
-        res.end(`404 page not found`);
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('404 Page Not Found');
     }
 });
 
@@ -29,5 +49,5 @@ const PORT = 3000;
 const HOSTNAME = '127.0.0.1'; 
 
 server.listen(PORT, HOSTNAME, () => {
-    console.log(`🚀 Server running at http://${HOSTNAME}:${PORT}/`);
+    console.log(`Server running at http://${HOSTNAME}:${PORT}/`);
 });
