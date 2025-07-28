@@ -1,4 +1,5 @@
 const http = require('http');
+const fs = require('fs');
 
 const server = http.createServer((req, res) => {
     // log incoming requests to console
@@ -7,7 +8,7 @@ const server = http.createServer((req, res) => {
     // homepage
     if (req.url === '/' && req.method === 'GET') {
         res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end('<h1>Welcome to the Homepage!</h1><p>Try navigating to /about</p>');
+        res.end('<h1>Welcome to the Homepage!</h1><p>Try navigating to /about or /file</p>');
     } 
     
     // about page
@@ -26,10 +27,57 @@ const server = http.createServer((req, res) => {
             body += chunk.toString();
         });
         req.on('end', () => {
-            const data = JSON.parse(body);
-            console.log('Received data:', data);
-            res.end();
+            try {
+                const data = JSON.parse(body);
+                console.log('Received data:', data);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, receivedData: data }));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'text/plain' });
+                res.end('Error: Invalid JSON format');
+            }
         });
+    }
+
+    // file read and write
+    else if (req.url === '/file') {
+        // read
+        if (req.method === 'GET') {
+            fs.readFile('data.txt', 'utf8', (err, data) => {
+                if (err) {
+                    res.writeHead(404, { 'Content-Type': 'text/plain' });
+                    res.end('File not found. POST to /file to create it.');
+                    return;
+                }
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end(data);
+            });
+        }
+        
+        // write
+        else if (req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => {
+                body += chunk.toString();
+            });
+            req.on('end', () => {
+                fs.writeFile('data.txt', body, (err) => {
+                    if (err) {
+                        res.writeHead(500, { 'Content-Type': 'text/plain' });
+                        res.end('Error writing to file.');
+                        return;
+                    }
+                    res.writeHead(201, { 'Content-Type': 'text/plain' });
+                    res.end('File written successfully.');
+                });
+            });
+        }
+        
+        // handling other methods
+        else {
+            res.writeHead(405, { 'Content-Type': 'text/plain' });
+            res.end('Method Not Allowed');
+        }
     }
 
     // Page Not Found
