@@ -1,57 +1,72 @@
-const http = require('http');
+const express = require('express');
+const app = express();
+const port = 3000;
 
-// simple memory db
-const database = [];
+const content = [];
 
-const server = http.createServer((req, res) => {
-    // log incoming requests to console
-    console.log(`Incoming Request: ${req.method} ${req.url}`);
-
-    // homepage
-    if (req.url === '/' && req.method === 'GET') {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end('<h1>Welcome to the Homepage!</h1><p>Try navigating to /about</p>');
-    } 
-    
-    // about page
-    else if (req.url === '/about' && req.method === 'GET') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ 
-            message: 'This is the About page.',
-            timestamp: new Date()
-        }));
-    } 
-
-    // handle GET request to /data to view all data
-    else if (req.url === '/data' && req.method === 'GET') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(database));
-    }
-    
-    // handle POST request to /data
-    else if (req.url === '/data' && req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', () => {
-            const data = JSON.parse(body);
-            database.push(data); 
-            console.log('Received data:', data);
-            res.end()
-        });
-    }
-
-    // Page Not Found
-    else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('404 Page Not Found');
-    }
+app.get('/', (req, res) => {
+  res.send('Hello World!');
 });
 
-const PORT = 3000;
-const HOSTNAME = '127.0.0.1'; 
+app.use('/web', (req, res, next) => {
+    console.log(`Received`);
+    next();
+}).get('/web', (req, res, next) => {
+    res.send(content);
+    res.end();
+    next();
+}).post('/web', (req, res, next) => {
+    content.push('post');
+    res.send(`content is (${content.length})`)
+    res.end();
+    next();
+}).patch('/web', (req, res, next) => {
+    if (content.length > 0) {
+        for (i=0;i<content.length;i++){
+            if (content[i]=='put'){
+                content[i]='patch';
+            }
+            else {
+                res.send(`Nothing Patched because \'put\' wasn't found in content: [${content}]`);
+            };
+        };
+    }
+    else {
+        console.log(`Nothing Patched!`)
+        res.send(`Nothing patched because content is empty (${content.length})`)
+    };
+    res.end();
+    next();
+}).put('/web', (req, res) => {
+    content.push('put');
+    res.send(`content is (${content.length})`)
+    res.end();
+});
 
-server.listen(PORT, HOSTNAME, () => {
-    console.log(`Server running at http://${HOSTNAME}:${PORT}/`);
+app.get('/account/:user/:pass', (req, res) => {
+    console.log(req.params);
+    res.send(req.params);
+    res.end();
+});
+
+app.get('/account', (req, res) => {
+    console.log(req.query);
+    res.send(req.query);
+    res.end();
+})
+
+app.get(/\/ab?cd/, (req, res) => {
+    console.log(`Navigated to: ${req.path}`)
+    res.send(`This is ${req.path}`);
+    res.end();
+});
+
+app.get(/\/home\/user\/ab?cd/, (req, res) => {
+    console.log(`Navigated to: ${req.path}`)
+    res.send(`This is ${req.path}`);
+    res.end();
+});
+
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`);
 });
