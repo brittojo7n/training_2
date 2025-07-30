@@ -89,6 +89,7 @@ app.post("/mail", async (req, res) => {
   });
 
   const mailOptions = {
+    from: `"RUST" <${process.env.GMAIL_USER}>`,
     to,
     subject,
     text,
