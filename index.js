@@ -1,12 +1,22 @@
+require('dotenv').config();
 const express = require('express');
+const nodemailer = require("nodemailer");
+const bodyParser = require("body-parser");
 const app = express();
 const port = 3000;
-
 const content = [];
+const EMAIL_PASS = process.env.EMAIL_PASS;
+const EMAIL_USER = process.env.EMAIL_USER;
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+app.use(
+  bodyParser.json({
+    limit: "500mb",
+  })
+);
 
 app.use('/web', (req, res, next) => {
     console.log(`Received`);
@@ -65,6 +75,31 @@ app.get(/\/home\/user\/ab?cd/, (req, res) => {
     console.log(`Navigated to: ${req.path}`)
     res.send(`This is ${req.path}`);
     res.end();
+});
+
+app.post("/mail", async (req, res) => {
+  const { to, subject, text } = req.body;
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: EMAIL_USER,
+      pass: EMAIL_PASS
+    },
+  });
+
+  const mailOptions = {
+    to,
+    subject,
+    text,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.send("Email sent!");
+  } catch (err) {
+    res.status(500).send("Failed to send!");
+  }
 });
 
 app.listen(port, () => {
