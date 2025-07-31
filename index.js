@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const nodemailer = require("nodemailer");
 const bodyParser = require("body-parser");
+const sequelize = require('./db/connection');
+const User = require('./models/user');
+
 const app = express();
 const port = 3000;
 const content = [];
@@ -103,6 +106,50 @@ app.post("/mail", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
+app.post('/users', async (req, res) => {
+    try {
+        const { username, email } = req.body;
+        if (!username || !email) {
+            return res.status(400).send({ message: 'Username and email are required' });
+        }
+        const newUser = await User.create({ username, email });
+        res.status(201).json(newUser);
+    } catch (error) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(409).json({ message: 'User with that username or email already exists.' });
+        }
+        console.error('Error creating user:', error);
+        res.status(500).send({ message: 'Error creating user' });
+    }
 });
+
+app.delete('/users/truncate', async (req, res) => {
+    try {
+        await User.destroy({
+            truncate: true
+        });
+        res.status(200).send({ message: 'User table has been truncated successfully.' });
+    } catch (error) {
+        console.error('Error truncating user table:', error);
+        res.status(500).send({ message: 'Failed to truncate user table.' });
+    }
+});
+
+const startServer = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Database connection has been established successfully.');
+
+    await sequelize.sync({ alter: true });
+    console.log('All models were synchronized successfully.');
+
+    app.listen(port, () => {
+      console.log(`Server listening at http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error('Unable to connect to the database or sync models:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
