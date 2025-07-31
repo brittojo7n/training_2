@@ -35,19 +35,22 @@ app.use('/web', (req, res, next) => {
     next();
 }).patch('/web', (req, res, next) => {
     if (content.length > 0) {
-        for (i=0;i<content.length;i++){
-            if (content[i]=='put'){
-                content[i]='patch';
+        let patched = false;
+        for (let i = 0; i < content.length; i++) {
+            if (content[i] === 'put') {
+                content[i] = 'patch';
+                patched = true;
             }
-            else {
-                res.send(`Nothing Patched because \'put\' wasn't found in content: [${content}]`);
-            };
-        };
-    }
-    else {
+        }
+        if (patched) {
+            res.send(`Content patched. New content: [${content}]`);
+        } else {
+            res.send(`Nothing Patched because 'put' wasn't found in content: [${content}]`);
+        }
+    } else {
         console.log(`Nothing Patched!`)
         res.send(`Nothing patched because content is empty (${content.length})`)
-    };
+    }
     res.end();
     next();
 }).put('/web', (req, res) => {
@@ -106,7 +109,7 @@ app.post("/mail", async (req, res) => {
   }
 });
 
-app.post('/users', async (req, res) => {
+app.post('/user', async (req, res) => {
     try {
         const { username, email } = req.body;
         if (!username || !email) {
@@ -123,7 +126,7 @@ app.post('/users', async (req, res) => {
     }
 });
 
-app.delete('/users/truncate', async (req, res) => {
+app.delete('/user', async (req, res) => {
     try {
         await User.destroy({
             truncate: true
@@ -132,6 +135,60 @@ app.delete('/users/truncate', async (req, res) => {
     } catch (error) {
         console.error('Error truncating user table:', error);
         res.status(500).send({ message: 'Failed to truncate user table.' });
+    }
+});
+
+app.get('/user', async (req, res) => {
+    try {
+        const users = await User.findAll();
+        res.status(200).json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).send({ message: 'Failed to fetch users.' });
+    }
+});
+
+// Route to update a user's email by username
+app.put('/user/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).send({ message: 'Email is required in the request body.' });
+        }
+
+        const [updatedRows] = await User.update({ email }, {
+            where: { username: username }
+        });
+
+        if (updatedRows > 0) {
+            res.status(200).send({ message: `User '${username}' was updated successfully.` });
+        } else {
+            res.status(404).send({ message: `User '${username}' not found.` });
+        }
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).send({ message: 'Failed to update user.' });
+    }
+});
+
+app.delete('/user/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+
+        const deletedRows = await User.destroy({
+            where: { username: username }
+        });
+
+        if (deletedRows > 0) {
+            res.status(200).send({ message: `User '${username}' was deleted successfully.` });
+        } else {
+            res.status(404).send({ message: `User '${username}' not found.` });
+        }
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).send({ message: 'Failed to delete user.' });
     }
 });
 
