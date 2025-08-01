@@ -1,20 +1,54 @@
 const User = require('../models/user');
+const jwt = require('jsonwebtoken');
+
+exports.generateToken = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    const user = await User.findOne({ where: { username } });
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isValidPassword = user.verifyPassword(password);
+    
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = user.generateAuthToken();
+    res.json({ token });
+    
+  } catch (error) {
+    console.error('Token generation error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 exports.createUser = async (req, res) => {
-    try {
-        const { username, email } = req.body;
-        if (!username || !email) {
-            return res.status(400).send({ message: 'Username and email are required' });
-        }
-        const newUser = await User.create({ username, email });
-        res.status(201).json(newUser);
-    } catch (error) {
-        if (error.name === 'SequelizeUniqueConstraintError') {
-            return res.status(409).json({ message: 'User with that username or email already exists.' });
-        }
-        console.error('Error creating user:', error);
-        res.status(500).send({ message: 'Error creating user' });
+  try {
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res.status(400).send({ message: 'All fields are required' });
     }
+    const newUser = await User.create({ username, email, password });
+    res.status(201).json({ 
+      id: newUser.id,
+      username: newUser.username,
+      email: newUser.email
+    });
+  } catch (error) {
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).json({ message: 'User already exists' });
+    }
+    console.error('Error creating user:', error);
+    res.status(500).send({ message: 'Error creating user' });
+  }
 };
 
 exports.truncateUsers = async (req, res) => {
